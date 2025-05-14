@@ -1,0 +1,32 @@
+from langdetect import detect
+from googletrans import Translator
+from gtts import gTTS
+import os
+
+def detect_language(text):
+    return detect(text)
+
+def translate_text(text, dest_lang='en'):
+    translator = Translator()
+    translated = translator.translate(text, dest=dest_lang)
+    return translated.text
+
+def text_to_speech(text, lang='en', output_file='output.mp3'):
+    tts = gTTS(text=text, lang=lang)
+    tts.save(output_file)
+    print(f"Speech saved to {output_file}")
+    os.system(f"start {output_file}")  # Use 'afplay' on macOS or 'xdg-open' on Linux
+
+def main():
+    text = input("Enter text: ")
+    detected_lang = detect_language(text)
+    print(f"Detected language: {detected_lang}")
+
+    target_lang = input("Enter target language code (e.g., 'en', 'fr', 'es'): ")
+    translated_text = translate_text(text, dest_lang=target_lang)
+    print(f"Translated text: {translated_text}")
+
+    text_to_speech(translated_text, lang=target_lang)
+
+if __name__ == "__main__":
+    main()
