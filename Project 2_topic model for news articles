@@ -1,0 +1,41 @@
+import nltk
+import re
+import pandas as pd
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from sklearn.datasets import fetch_20newsgroups
+from gensim import corpora, models
+
+# Download required NLTK resources
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+# Load the dataset
+newsgroups = fetch_20newsgroups(remove=('headers', 'footers', 'quotes'))
+documents = newsgroups.data
+
+# Text preprocessing function
+stop_words = set(stopwords.words('english'))
+lemmatizer = WordNetLemmatizer()
+
+def preprocess(text):
+    text = re.sub(r'\W+', ' ', text.lower())
+    words = text.split()
+    words = [lemmatizer.lemmatize(w) for w in words if w not in stop_words and len(w) > 3]
+    return words
+
+# Preprocess all documents
+texts = [preprocess(doc) for doc in documents]
+
+# Create dictionary and corpus
+dictionary = corpora.Dictionary(texts)
+corpus = [dictionary.doc2bow(text) for text in texts]
+
+# Build LDA model
+lda_model = models.LdaModel(corpus, num_topics=5, id2word=dictionary, passes=10, random_state=42)
+
+# Display topics
+print("\n--- Top 5 Topics ---")
+for idx, topic in lda_model.print_topics(num_words=5):
+    print(f"Topic {idx + 1}: {topic}")
+topic model for nws 
